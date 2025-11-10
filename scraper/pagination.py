@@ -1,0 +1,1 @@
+"""Pagination utilities for iterating FUT.GG pages until no cards remain."""

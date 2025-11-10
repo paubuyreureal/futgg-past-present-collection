@@ -1,0 +1,1 @@
+"""BeautifulSoup parsing helpers that convert FUT.GG HTML into structured data."""

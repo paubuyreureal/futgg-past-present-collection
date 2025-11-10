@@ -1,0 +1,1 @@
+"""CLI entry point: orchestrates fetch -> parse -> store workflow."""

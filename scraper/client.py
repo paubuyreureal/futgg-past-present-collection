@@ -1,0 +1,1 @@
+"""HTTP client helpers (session, headers, retries, polite throttling)."""
