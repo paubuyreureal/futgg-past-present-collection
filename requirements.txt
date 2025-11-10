@@ -1,0 +1,7 @@
+requests>=2.32.0        # HTTP client for fetching pages
+beautifulsoup4>=4.12.0  # HTML parser for locating player card elements
+lxml>=5.2.0             # Fast/robust parser backend used by BeautifulSoup
+tenacity>=8.3.0         # Retry/backoff helper for resilient requests
+SQLAlchemy>=2.0.0       # ORM/DB toolkit to model and persist player cards
+psycopg2-binary>=2.9.9  # PostgreSQL driver used by SQLAlchemy
+python-dotenv>=1.0.1    # Load DB credentials/config from a .env file
