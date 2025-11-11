@@ -75,3 +75,5 @@ if __name__ == "__main__":
     for name, rating, version, in_club in get_cards("Dembélé"):
         status = "✅" if in_club else "❌"
         print(f"{status} {name} {rating} - {version}")
+
+

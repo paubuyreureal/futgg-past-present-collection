@@ -30,6 +30,10 @@ class Player(Base):
     slug: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     display_name: Mapped[str] = mapped_column(String, nullable=False)
     any_in_club: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    base_card_slug: Mapped[str | None] = mapped_column(String, nullable=True)
+    base_card_rating: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    base_card_version: Mapped[str | None] = mapped_column(String, nullable=True)
+    base_card_image_url: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=datetime.now(timezone.utc)
     )

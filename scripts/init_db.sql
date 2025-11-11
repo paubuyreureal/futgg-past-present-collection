@@ -10,6 +10,10 @@ CREATE TABLE IF NOT EXISTS players (
     slug TEXT NOT NULL,
     display_name TEXT NOT NULL,
     any_in_club BOOLEAN NOT NULL DEFAULT FALSE,
+    base_card_slug TEXT,
+    base_card_rating INTEGER,
+    base_card_version TEXT,
+    base_card_image_url TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT ux_players_slug UNIQUE (slug)
