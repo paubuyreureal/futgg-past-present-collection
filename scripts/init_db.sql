@@ -4,10 +4,6 @@
 
 BEGIN;
 
--- Clean slate for early development. Remove these DROP statements once the schema stabilises.
-DROP TABLE IF EXISTS player_cards CASCADE;
-DROP TABLE IF EXISTS players CASCADE;
-
 CREATE TABLE IF NOT EXISTS players (
     id SERIAL PRIMARY KEY,
     -- Normalised identifier derived from the FUT.GG player slug (e.g., "claudia-pina").
