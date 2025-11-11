@@ -28,7 +28,6 @@ CREATE TABLE IF NOT EXISTS player_cards (
     scraped_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT ux_player_cards_slug UNIQUE (card_slug),
-    CONSTRAINT ux_player_cards_identity UNIQUE (player_id, version, rating)
 );
 
 CREATE INDEX IF NOT EXISTS ix_player_cards_player_id

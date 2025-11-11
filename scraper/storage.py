@@ -11,6 +11,7 @@ from typing import Iterable, Iterator, Sequence
 from sqlalchemy import create_engine, func, insert, select, update
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.dialects.postgresql import insert 
 
 from .config import get_settings
 from .models import Base, Player, PlayerCard
@@ -81,18 +82,30 @@ def _ensure_players(session: Session, payloads: Sequence[CardPayload]) -> None:
         slug.lower()
         for (slug,) in session.execute(
             select(Player.slug).where(Player.slug.in_(slugs))
-        ).all()
+        )
     }
-    new_players = [
-        {"slug": payload.player_slug, "display_name": payload.display_name}
-        for payload in payloads
-        if payload.player_slug.lower() not in existing
-    ]
+
+    new_players = []
+    seen = set(existing)
+    for payload in payloads:
+        slug = payload.player_slug.lower()
+        if slug in seen:
+            continue
+        seen.add(slug)
+        new_players.append(
+            {"slug": payload.player_slug, "display_name": payload.display_name}
+        )
+
     if new_players:
-        session.execute(insert(Player).values(new_players))
+        stmt = insert(Player).values(new_players)
+        session.execute(stmt.on_conflict_do_nothing(index_elements=["slug"]))
 
 
 def _upsert_cards(session: Session, payloads: Sequence[CardPayload]) -> None:
+    unique_payloads: dict[str, CardPayload] = {}
+    for payload in payloads:
+        unique_payloads[payload.card_slug] = payload
+    payloads = list(unique_payloads.values())
     player_id_map = {
         slug: player_id
         for slug, player_id in session.execute(
@@ -132,14 +145,13 @@ def _upsert_cards(session: Session, payloads: Sequence[CardPayload]) -> None:
 
 
 def _refresh_any_in_club(session: Session, payloads: Sequence[CardPayload]) -> None:
-    player_ids = [
-        player_id
-        for (_, player_id) in session.execute(
-            select(Player.id).where(
-                Player.slug.in_({payload.player_slug for payload in payloads})
-            )
+    player_ids = list(
+    session.scalars(
+        select(Player.id).where(
+            Player.slug.in_({payload.player_slug for payload in payloads})
         )
-    ]
+    )
+)
     if not player_ids:
         return
 

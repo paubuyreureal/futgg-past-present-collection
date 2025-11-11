@@ -52,7 +52,6 @@ class PlayerCard(Base):
     __tablename__ = "player_cards"
     __table_args__ = (
         UniqueConstraint("card_slug", name="ux_player_cards_slug"),
-        UniqueConstraint("player_id", "version", "rating", name="ux_player_cards_identity"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)

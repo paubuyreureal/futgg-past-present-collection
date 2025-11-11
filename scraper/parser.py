@@ -37,13 +37,17 @@ def parse_cards(html: str) -> List[CardPayload]:
         Structured card data ready to be persisted.
     """
     soup = BeautifulSoup(html, "lxml")
-    cards: List[CardPayload] = []
+    cards: list[CardPayload] = []
+    seen_slugs: set[str] = set()
 
     for anchor in _iter_card_anchors(soup):
         try:
             payload = _parse_anchor(anchor)
         except ParseError:
-            continue  # Skip malformed entries but continue parsing
+            continue
+        if payload.card_slug in seen_slugs:
+            continue
+        seen_slugs.add(payload.card_slug)
         cards.append(payload)
 
     return cards
@@ -66,12 +70,13 @@ def _parse_anchor(anchor: Tag) -> CardPayload:
     if not href:
         raise ParseError("Anchor missing href")
 
-    match = _CARD_HREF_RE.match(href)
-    if not match:
+    parts = href.strip("/").split("/")
+    if len(parts) < 3 or parts[0] != "players":
         raise ParseError(f"Unexpected player URL format: {href!r}")
 
-    card_slug = match.group(1)
-    player_slug = _derive_player_slug(card_slug)
+    player_segment = parts[1]
+    card_slug = "/".join(parts[1:])  # e.g. "231443-ousmane-dembele/26-50563091"
+    player_slug = _derive_player_slug(player_segment)
 
     image = anchor.find("img", alt=True)
     if image is None:
@@ -80,9 +85,7 @@ def _parse_anchor(anchor: Tag) -> CardPayload:
     alt_text = image["alt"].strip()
     name, rating, version = _split_alt_text(alt_text)
 
-    display_name = name
     card_url = urljoin(FUTGG_ROOT, href)
-
     raw_image_url = image.get("src") or image.get("data-src")
     if not raw_image_url:
         raise ParseError("Card image missing src/data-src")
@@ -90,7 +93,7 @@ def _parse_anchor(anchor: Tag) -> CardPayload:
 
     return CardPayload(
         player_slug=player_slug,
-        display_name=display_name,
+        display_name=name,
         card_slug=card_slug,
         name=name,
         rating=rating,
