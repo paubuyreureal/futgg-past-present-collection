@@ -11,7 +11,7 @@ from scraper.client import throttled_session
 from scraper.config import get_settings
 from scraper.pagination import iter_pages
 from scraper.parser import ParseError, parse_cards
-from scraper.storage import CardPayload, upsert_players_and_cards
+from scraper.storage import CardPayload, upsert_players_and_cards, normalize_duplicate_display_names
 
 settings = get_settings()
 
@@ -44,6 +44,9 @@ def main() -> None:
             total_cards += len(cards)
             logger.info("Stored %s cards (total %s)", len(cards), total_cards)
 
+        updated = normalize_duplicate_display_names()
+    if updated:
+        logger.info("Normalized %s duplicate display names.", updated)
     logger.info("Scrape complete: %s cards processed", total_cards)
 
 
