@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, or_, select, Integer
 from sqlalchemy.orm import Session
 
 from app.schemas.player import PlayerDetail, PlayerListItem
@@ -73,7 +73,7 @@ def get_players_list(
         card_counts = db.execute(
             select(
                 func.count(PlayerCard.id).label("total"),
-                func.sum(func.cast(PlayerCard.in_club, "int")).label("in_club"),
+                func.sum(func.cast(PlayerCard.in_club, Integer)).label("in_club"),
             ).where(PlayerCard.player_id == player.id)
         ).one()
         
@@ -121,7 +121,7 @@ def get_player_by_slug(db: Session, slug: str) -> PlayerDetail | None:
     card_counts = db.execute(
         select(
             func.count(PlayerCard.id).label("total"),
-            func.sum(func.cast(PlayerCard.in_club, "int")).label("in_club"),
+            func.sum(func.cast(PlayerCard.in_club, Integer)).label("in_club"),
         ).where(PlayerCard.player_id == player.id)
     ).one()
     
