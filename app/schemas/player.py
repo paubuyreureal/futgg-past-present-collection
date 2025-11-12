@@ -22,8 +22,8 @@ class PlayerListItem(BaseModel):
     in_club_count: int = Field(description="Number of cards marked in_club")
     total_cards: int = Field(description="Total number of cards for this player")
 
-    class Config:
-        from_attributes = True
+    # class Config:
+    #     from_attributes = True
 
 
 class PlayerDetail(BaseModel):
@@ -37,5 +37,5 @@ class PlayerDetail(BaseModel):
     total_cards: int = Field(description="Total number of cards for this player")
     cards: list[Card] = Field(description="All cards for this player")
 
-    class Config:
-        from_attributes = True
+    # class Config:
+    #     from_attributes = True

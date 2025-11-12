@@ -20,8 +20,8 @@ class Card(BaseModel):
     card_url: str
     in_club: bool
 
-    class Config:
-        from_attributes = True  # Allows conversion from SQLAlchemy models
+    # class Config:
+    #     from_attributes = True  # Allows conversion from SQLAlchemy models
 
 
 class CardUpdate(BaseModel):
