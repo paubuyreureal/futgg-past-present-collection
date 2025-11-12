@@ -3,6 +3,8 @@ Pytest fixtures for API testing.
 """
 
 import pytest
+import tempfile
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from fastapi.testclient import TestClient
@@ -12,17 +14,27 @@ from scraper.storage.connection import get_engine
 from app.main import app
 
 
-# Test database URL (use in-memory SQLite for speed, or a test PostgreSQL DB)
-TEST_DATABASE_URL = "sqlite:///:memory:"
+# Use a temporary file-based SQLite database
+# This ensures all connections share the same database (unlike :memory:)
+_test_db_file = None
+
+def _get_test_db_url():
+    """Get a temporary file-based SQLite database URL."""
+    global _test_db_file
+    if _test_db_file is None:
+        fd, _test_db_file = tempfile.mkstemp(suffix='.db')
+        os.close(fd)  # Close the file descriptor, we only need the path
+    return f"sqlite:///{_test_db_file}"
 
 
 @pytest.fixture(scope="function")
 def db_session():
     """
     Create a fresh database session for each test.
-    Uses an in-memory SQLite database for speed.
+    Uses a temporary file-based SQLite database so connections share the same DB.
     """
-    engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+    db_url = _get_test_db_url()
+    engine = create_engine(db_url, connect_args={"check_same_thread": False})
     Base.metadata.create_all(engine)
     
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -32,6 +44,7 @@ def db_session():
         yield session
     finally:
         session.close()
+        # Clean up: drop all tables but keep the file for other connections
         Base.metadata.drop_all(engine)
 
 
@@ -90,8 +103,9 @@ def client(db_session: Session):
     """
     Create a test client with a database session override.
     """
-    # Ensure tables exist in the session's database
-    Base.metadata.create_all(db_session.bind)
+    # Ensure tables exist (they should already exist from db_session fixture)
+    engine = db_session.get_bind()
+    Base.metadata.create_all(engine)
     
     def override_get_db():
         try:
@@ -106,3 +120,15 @@ def client(db_session: Session):
         yield test_client
     
     app.dependency_overrides.clear()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def cleanup_test_db():
+    """Clean up the temporary test database file after all tests."""
+    yield
+    global _test_db_file
+    if _test_db_file and os.path.exists(_test_db_file):
+        try:
+            os.unlink(_test_db_file)
+        except Exception:
+            pass  # Ignore cleanup errors
