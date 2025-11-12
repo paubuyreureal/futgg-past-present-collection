@@ -1,0 +1,1 @@
+"""Player list endpoint (search, filter, sort)."""

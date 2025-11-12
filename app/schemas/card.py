@@ -1,0 +1,1 @@
+"""Card-related Pydantic schemas."""

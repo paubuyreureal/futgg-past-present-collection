@@ -9,7 +9,7 @@ import pytest
 from scraper.parser import ParseError, parse_cards, _parse_anchor, _split_alt_text, _derive_player_slug
 from bs4 import BeautifulSoup
 
-FIXTURES_DIR = Path(__file__).parent / "fixtures"
+FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
 
 
 def load_fixture(name: str) -> str:

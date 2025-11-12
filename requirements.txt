@@ -1,9 +1,18 @@
+# Scraper
 requests>=2.32.0        # HTTP client for fetching pages
 beautifulsoup4>=4.12.0  # HTML parser for locating player card elements
 lxml>=5.2.0             # Fast/robust parser backend used by BeautifulSoup
 tenacity>=8.3.0         # Retry/backoff helper for resilient requests
 SQLAlchemy>=2.0.0       # ORM/DB toolkit to model and persist player cards
 psycopg2-binary>=2.9.9  # PostgreSQL driver used by SQLAlchemy
+
+# Environment and testing
 python-dotenv>=1.0.1    # Load DB credentials/config from a .env file
 pytest>=7.4.0           # Unit test framework
 pytest-mock>=3.12.0     # for mocker fixture
+
+# App/Backend 
+fastapi>=0.115.0            # Web framework
+uvicorn[standard]>=0.30.0   # ASGI server
+pydantic>=2.9.0             # Data validation (FastAPI uses this)
+python-multipart>=0.0.9     # For form data if needed

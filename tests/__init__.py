@@ -1,1 +1,1 @@
-"""Test package for ScrapeFutGG."""
+"""Test package for FutGG-Collection."""
