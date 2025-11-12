@@ -43,4 +43,16 @@ CREATE INDEX IF NOT EXISTS ix_player_cards_in_club
 CREATE INDEX IF NOT EXISTS ix_players_any_in_club
     ON players (any_in_club);
 
+CREATE INDEX IF NOT EXISTS ix_players_display_name
+    ON players (display_name);
+
+CREATE INDEX IF NOT EXISTS ix_players_base_card_rating
+    ON players (base_card_rating);
+
+-- Composite index for common filter+sort queries
+CREATE INDEX IF NOT EXISTS ix_players_any_in_club_rating
+    ON players (any_in_club, base_card_rating);
+
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
 COMMIT;
