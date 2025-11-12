@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from sqlalchemy import func, or_, select, Integer
+from sqlalchemy import func, or_, select, Integer, inspect
 from sqlalchemy.orm import Session
 
 from app.schemas.player import PlayerDetail, PlayerListItem
@@ -37,17 +37,21 @@ def get_players_list(
     query = select(Player)
     
     # Apply search filter (accent-insensitive)
+    # Apply search filter (accent-insensitive)
     if search:
         search_normalized = search.lower().strip()
-        # Use unaccent if available, otherwise fallback to ILIKE
-        try:
+        # Check if database supports unaccent (PostgreSQL only)
+        dialect_name = inspect(db.bind).dialect.name
+        
+        if dialect_name == "postgresql":
+            # Use unaccent for PostgreSQL
             query = query.where(
                 func.unaccent(func.lower(Player.display_name)).contains(
                     func.unaccent(search_normalized)
                 )
             )
-        except Exception:
-            # Fallback if unaccent extension not available
+        else:
+            # Fallback for SQLite and other databases
             query = query.where(
                 func.lower(Player.display_name).contains(search_normalized)
             )

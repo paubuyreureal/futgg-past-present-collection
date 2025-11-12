@@ -4,13 +4,15 @@ Player-related Pydantic schemas.
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from .card import Card
 
 
 class PlayerListItem(BaseModel):
     """Player representation for the list page."""
+
+    model_config = ConfigDict(from_attributes=True)
     
     slug: str
     display_name: str
@@ -26,6 +28,8 @@ class PlayerListItem(BaseModel):
 
 class PlayerDetail(BaseModel):
     """Player representation for the detail page."""
+
+    model_config = ConfigDict(from_attributes=True)
     
     slug: str
     display_name: str

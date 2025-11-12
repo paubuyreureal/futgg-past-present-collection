@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Iterable, Sequence
 
-from sqlalchemy import func, insert, select, update
+from sqlalchemy import func, insert, select, update, Integer
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
 
@@ -106,8 +106,20 @@ def _refresh_any_in_club(session: Session, payloads: Sequence[CardPayload]) -> N
     if not player_ids:
         return
 
+    # Use database-agnostic boolean aggregation
+    # PostgreSQL: bool_or(), SQLite: MAX() (treats True=1, False=0)
+    from sqlalchemy import inspect
+    dialect_name = inspect(session.bind).dialect.name
+    
+    if dialect_name == "postgresql":
+        any_expr = func.bool_or(PlayerCard.in_club)
+    else:
+        # SQLite and others: use MAX() which works for booleans
+        # MAX(True, False) = True, MAX(False, False) = False
+        any_expr = func.max(func.cast(PlayerCard.in_club, Integer))
+    
     subquery = (
-        select(PlayerCard.player_id, func.bool_or(PlayerCard.in_club).label("any"))
+        select(PlayerCard.player_id, any_expr.label("any"))
         .where(PlayerCard.player_id.in_(player_ids))
         .group_by(PlayerCard.player_id)
         .subquery()

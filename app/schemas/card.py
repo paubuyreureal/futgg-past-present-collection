@@ -4,11 +4,13 @@ Card-related Pydantic schemas.
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class Card(BaseModel):
     """Card representation for API responses."""
+    
+    model_config = ConfigDict(from_attributes=True)
     
     card_slug: str
     name: str
