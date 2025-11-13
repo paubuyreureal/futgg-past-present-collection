@@ -194,53 +194,46 @@ function PlayerList() {
 
       {/* Player list */}
       {!loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {players.map((player) => (
             <div
-              key={player.slug}
-              onClick={() => handlePlayerClick(player.slug)}
-              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer p-4 border border-gray-200 hover:border-blue-500"
-            >
-              {/* Player image */}
-              <div className="mb-3 flex justify-center">
-                {player.base_card_image_url ? (
-                  <img
-                    src={player.base_card_image_url}
-                    alt={player.display_name}
-                    className="w-24 h-24 object-contain"
-                  />
-                ) : (
-                  <div className="w-24 h-24 bg-gray-200 rounded flex items-center justify-center text-gray-400">
-                    No Image
-                  </div>
-                )}
-              </div>
+            key={player.slug}
+            onClick={() => handlePlayerClick(player.slug)}
+            className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer pt-1 px-4 pb-4 border border-gray-200 hover:border-blue-500 flex flex-col"
+          >
+            {/* Player image - bigger */}
+            <div className="flex justify-center">
+              {player.base_card_image_url ? (
+                <img
+                  src={player.base_card_image_url}
+                  alt={player.display_name}
+                  className="w-64 h-64 object-contain"
+                />
+              ) : (
+                <div className="w-64 h-64 bg-gray-200 rounded flex items-center justify-center text-gray-400">
+                  No Image
+                </div>
+              )}
+            </div>
 
-              {/* Player name */}
-              <h2 className="text-lg font-semibold text-gray-900 mb-2 text-center">
+            {/* Player name and counter in same row */}
+            <div className="flex items-center justify-between gap-2 mt-2">
+              <h2 className="text-lg font-semibold text-gray-900 flex-1 truncate">
                 {player.display_name}
               </h2>
-
-              {/* Rating */}
-              {player.base_card_rating && (
-                <p className="text-sm text-gray-600 text-center mb-2">
-                  Rating: {player.base_card_rating}
-                </p>
-              )}
-
-              {/* In club indicator and count */}
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <span
                   className={`inline-block w-3 h-3 rounded-full ${
                     player.any_in_club ? 'bg-green-500' : 'bg-gray-300'
                   }`}
                   title={player.any_in_club ? 'Has cards in club' : 'No cards in club'}
                 />
-                <span className="text-sm text-gray-600">
+                <span className="text-base text-gray-600">
                   {player.in_club_count}/{player.total_cards}
                 </span>
               </div>
             </div>
+          </div>
           ))}
         </div>
       )}
