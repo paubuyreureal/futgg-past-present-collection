@@ -7,3 +7,39 @@
  * - Defines custom CSS variables or global styles if needed
  * - Applied to the entire application
  */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles for the entire application */
+@layer base {
+    body {
+      @apply antialiased;
+      @apply bg-gray-50;
+      @apply text-gray-900;
+      @apply font-sans;
+      margin: 0;
+      padding: 0;
+    }
+  
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+  
+    /* Better default link styling */
+    a {
+      @apply text-blue-600;
+      @apply hover:text-blue-800;
+      @apply transition-colors;
+    }
+  
+    /* Remove default button styles */
+    button {
+      @apply focus:outline-none;
+      @apply focus:ring-2;
+      @apply focus:ring-blue-500;
+      @apply focus:ring-offset-2;
+    }
+  }
