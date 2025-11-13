@@ -6,3 +6,10 @@
  * - Autoprefixer: Automatically adds vendor prefixes for browser compatibility
  * Used by Vite during development and build processes
  */
+
+export default {
+    plugins: {
+      tailwindcss: {},
+      autoprefixer: {},
+    },
+  }
