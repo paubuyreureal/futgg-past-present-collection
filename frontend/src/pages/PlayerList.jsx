@@ -97,7 +97,14 @@ function PlayerList() {
     <div className="container mx-auto px-4 py-8">
       {/* Header with title and scrape button */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">FC Barcelona - Past & Present</h1>
+        <div className="flex items-center gap-3">
+          <img 
+            src="/favicon.png" 
+            alt="FC Barcelona" 
+            className="w-10 h-10"
+          />
+          <h1 className="text-3xl font-bold text-gray-900">FC Barcelona - Past & Present Collection</h1>
+        </div>
         <button
           onClick={handleScrape}
           disabled={scraping}
