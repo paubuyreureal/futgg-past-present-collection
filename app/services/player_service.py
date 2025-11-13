@@ -118,7 +118,7 @@ def get_player_by_slug(db: Session, slug: str) -> PlayerDetail | None:
     cards = db.scalars(
         select(PlayerCard)
         .where(PlayerCard.player_id == player.id)
-        .order_by(PlayerCard.rating.desc(), PlayerCard.version)
+        .order_by(PlayerCard.rating.asc(), PlayerCard.version)
     ).all()
     
     # Count in_club cards
