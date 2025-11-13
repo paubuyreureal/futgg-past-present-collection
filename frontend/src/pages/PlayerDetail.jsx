@@ -134,12 +134,25 @@ function PlayerDetail() {
       {/* Player header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <span
-            className={`inline-block w-4 h-4 rounded-full mt-1 ${
-              player.in_club_count > 0 ? 'bg-green-500' : 'bg-gray-300'
-            }`}
-            title={player.in_club_count > 0 ? 'Has cards in club' : 'No cards in club'}
-          />
+          {player.in_club_count === player.total_cards && player.total_cards > 0 ? (
+            // All cards in club - decorated with checkmark
+            <span
+              className="inline-flex w-5 h-5 rounded-full bg-green-500 mt-1 items-center justify-center ring-2 ring-green-300"
+              title="All cards in club"
+            >
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            </span>
+          ) : (
+            // Some or no cards in club - regular circle
+            <span
+              className={`inline-block w-4 h-4 rounded-full mt-1 ${
+                player.in_club_count > 0 ? 'bg-green-500' : 'bg-gray-300'
+              }`}
+              title={player.in_club_count > 0 ? 'Has cards in club' : 'No cards in club'}
+            />
+          )}
           <h1 className="text-4xl font-bold text-gray-900">{player.display_name}</h1>
         </div>
         <p className="text-lg text-gray-600">
