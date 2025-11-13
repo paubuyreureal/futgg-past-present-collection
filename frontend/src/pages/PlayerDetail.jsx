@@ -12,12 +12,13 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getPlayer, updateCard } from '../api/client';
 
 function PlayerDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [player, setPlayer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -121,7 +122,10 @@ function PlayerDetail() {
     <div className="container mx-auto px-4 py-8">
       {/* Back button */}
       <button
-        onClick={() => navigate('/')}
+        onClick={() => {
+          // Pass state back to restore filters and scroll position
+          navigate('/', { state: location.state });
+        }}
         className="mb-6 text-blue-600 hover:text-blue-800 flex items-center gap-2"
       >
         <span>←</span> Back to Player List

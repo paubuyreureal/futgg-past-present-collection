@@ -11,8 +11,8 @@
  * - Navigates to PlayerDetail page when a player is clicked
  */
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getPlayers, triggerScrape, getScrapeStatus, getPlayerCounts } from '../api/client';
 
 function PlayerList() {
@@ -23,12 +23,58 @@ function PlayerList() {
   const [sort, setSort] = useState('desc');
   const [scraping, setScraping] = useState(false);
   const [scrapeStatus, setScrapeStatus] = useState(false);
-  const [playerCounts, setPlayerCounts] = useState({ total: 0, in_club: 0 });  
+  const [playerCounts, setPlayerCounts] = useState({ total: 0, in_club: 0 });
   
   const navigate = useNavigate();
+  const location = useLocation();
+  const hasRestoredFromState = useRef(false);
 
-  // Fetch players when filters/search/sort change
+  // Restore filters from location state when returning from player detail
   useEffect(() => {
+    if (location.state?.filters && !hasRestoredFromState.current) {
+      const { search: savedSearch, inClubFilter: savedFilter, sort: savedSort } = location.state.filters;
+      
+      // Update state
+      if (savedSearch !== undefined) setSearch(savedSearch);
+      if (savedFilter !== undefined) setInClubFilter(savedFilter);
+      if (savedSort !== undefined) setSort(savedSort);
+      
+      // Mark as restored
+      hasRestoredFromState.current = true;
+      
+      // Explicitly fetch players with restored filters
+      const fetchPlayersWithFilters = async () => {
+        setLoading(true);
+        try {
+          const data = await getPlayers({
+            search: savedSearch || undefined,
+            in_club: savedFilter || 'all',
+            sort: savedSort || 'desc',
+          });
+          setPlayers(data);
+        } catch (error) {
+          console.error('Failed to fetch players:', error);
+        } finally {
+          setLoading(false);
+          // Reset flag after restoration is complete
+          hasRestoredFromState.current = false;
+        }
+      };
+      
+      fetchPlayersWithFilters();
+    } else if (!location.state?.filters) {
+      // Reset the flag when there's no state to restore
+      hasRestoredFromState.current = false;
+    }
+  }, [location.state]);
+
+  // Fetch players when filters/search/sort change (skip if restoring from state)
+  useEffect(() => {
+    // Skip if we're currently restoring from location.state
+    if (hasRestoredFromState.current) {
+      return;
+    }
+    
     const fetchPlayers = async () => {
       setLoading(true);
       try {
@@ -107,7 +153,19 @@ function PlayerList() {
   };
 
   const handlePlayerClick = (slug) => {
-    navigate(`/players/${slug}`);
+    // Save current state before navigating
+    const scrollPosition = window.scrollY;
+    navigate(`/players/${slug}`, {
+      state: {
+        filters: {
+          search,
+          inClubFilter,
+          sort,
+        },
+        scrollPosition,
+        playerSlug: slug,
+      },
+    });
   };
 
   return (
@@ -194,13 +252,14 @@ function PlayerList() {
 
       {/* Player list */}
       {!loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
           {players.map((player) => (
             <div
-            key={player.slug}
-            onClick={() => handlePlayerClick(player.slug)}
-            className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer pt-1 px-4 pb-4 border border-gray-200 hover:border-blue-500 flex flex-col"
-          >
+              key={player.slug}
+              data-player-slug={player.slug}  // Add this for scrolling
+              onClick={() => handlePlayerClick(player.slug)}
+              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer pt-1 px-4 pb-4 border border-gray-200 hover:border-blue-500 flex flex-col"
+            >
             {/* Player image - bigger */}
             <div className="flex justify-center">
               {player.base_card_image_url ? (
