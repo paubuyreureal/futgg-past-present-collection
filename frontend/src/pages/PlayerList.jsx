@@ -24,6 +24,7 @@ function PlayerList() {
   const [scraping, setScraping] = useState(false);
   const [scrapeStatus, setScrapeStatus] = useState(false);
   const [playerCounts, setPlayerCounts] = useState({ total: 0, in_club: 0 });
+  const [showScrollTop, setShowScrollTop] = useState(false);  // Add this state
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -162,6 +163,16 @@ function PlayerList() {
     return () => clearInterval(interval);
   }, [scraping, search, inClubFilter, sort]);
 
+  // Handle scroll to show/hide scroll-to-top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleScrape = async () => {
     setScraping(true);
     setScrapeStatus(true);
@@ -173,6 +184,14 @@ function PlayerList() {
       setScraping(false);
       setScrapeStatus(false);
     }
+  };
+
+  const handleClearSearch = () => {
+    setSearch('');
+  };
+
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handlePlayerClick = (slug) => {
@@ -203,7 +222,7 @@ function PlayerList() {
           />
           <div>
             <h1 className="text-3xl font-bold text-gray-900">FC Barcelona - Past & Present Collection</h1>
-            <p className="text-lg text-gray-500 mt-1">
+            <p className="text-base text-gray-500 mt-1">
               {playerCounts.in_club} / {playerCounts.total} players in club
             </p>
           </div>
@@ -232,15 +251,26 @@ function PlayerList() {
 
       {/* Filters and search */}
       <div className="mb-6 space-y-4 md:space-y-0 md:flex md:gap-4">
-        {/* Search input */}
-        <div className="flex-1">
+        {/* Search input with clear button */}
+        <div className="flex-1 relative">
           <input
             type="text"
             placeholder="Search players..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
+          {search && (
+            <button
+              onClick={handleClearSearch}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Clear search"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
         </div>
 
         {/* Filter dropdown */}
@@ -339,6 +369,19 @@ function PlayerList() {
           <p className="text-gray-600 text-lg">No players found</p>
           <p className="text-gray-500 text-sm mt-2">Try adjusting your search or filters</p>
         </div>
+      )}
+
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <button
+          onClick={handleScrollToTop}
+          className="fixed bottom-8 right-8 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-all hover:scale-110 z-40"
+          aria-label="Scroll to top"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        </button>
       )}
     </div>
   );
