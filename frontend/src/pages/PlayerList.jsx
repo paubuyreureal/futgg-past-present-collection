@@ -28,6 +28,7 @@ function PlayerList() {
   const navigate = useNavigate();
   const location = useLocation();
   const hasRestoredFromState = useRef(false);
+  const hasRestoredScroll = useRef(false);
 
   // Restore filters from location state when returning from player detail
   useEffect(() => {
@@ -65,6 +66,7 @@ function PlayerList() {
     } else if (!location.state?.filters) {
       // Reset the flag when there's no state to restore
       hasRestoredFromState.current = false;
+      hasRestoredScroll.current = false;  // Also reset scroll flag
     }
   }, [location.state]);
 
@@ -93,6 +95,27 @@ function PlayerList() {
 
     fetchPlayers();
   }, [search, inClubFilter, sort]);
+
+  // Restore scroll position after players load (when returning from player detail)
+  useEffect(() => {
+    if (location.state?.scrollPosition && players.length > 0 && !loading && !hasRestoredScroll.current) {
+      // Mark as restored
+      hasRestoredScroll.current = true;
+      
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        window.scrollTo(0, location.state.scrollPosition);
+        
+        // Optionally scroll to specific player card
+        if (location.state.playerSlug) {
+          const playerElement = document.querySelector(`[data-player-slug="${location.state.playerSlug}"]`);
+          if (playerElement) {
+            playerElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }, 100);
+    }
+  }, [players, loading, location.state]);
 
 
   // Fetch player counts on mount and when scraping finishes
