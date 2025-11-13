@@ -98,4 +98,29 @@ def test_scrape_endpoint(client: TestClient):
     response = client.post("/scrape")
     assert response.status_code == 202  # Accepted (background task)
     data = response.json()
+    assert "status" in data
     assert "message" in data
+    assert data["status"] == "accepted"
+
+
+def test_scrape_status_endpoint(client: TestClient):
+    """Test GET /scrape/status endpoint."""
+    # Initially should be False (not scraping)
+    response = client.get("/scrape/status")
+    assert response.status_code == 200
+    data = response.json()
+    assert "in_progress" in data
+    assert isinstance(data["in_progress"], bool)
+    assert data["in_progress"] is False
+    
+    # After triggering scrape, status might be True (if task starts quickly)
+    # or False (if task hasn't started yet or already finished)
+    # This is non-deterministic, so we just check the structure
+    client.post("/scrape")
+    response = client.get("/scrape/status")
+    assert response.status_code == 200
+    data = response.json()
+    assert "in_progress" in data
+    assert isinstance(data["in_progress"], bool)
+
+    
