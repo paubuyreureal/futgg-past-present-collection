@@ -13,7 +13,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getPlayers, triggerScrape, getScrapeStatus } from '../api/client';
+import { getPlayers, triggerScrape, getScrapeStatus, getPlayerCounts } from '../api/client';
 
 function PlayerList() {
   const [players, setPlayers] = useState([]);
@@ -23,6 +23,7 @@ function PlayerList() {
   const [sort, setSort] = useState('desc');
   const [scraping, setScraping] = useState(false);
   const [scrapeStatus, setScrapeStatus] = useState(false);
+  const [playerCounts, setPlayerCounts] = useState({ total: 0, in_club: 0 });  
   
   const navigate = useNavigate();
 
@@ -46,6 +47,22 @@ function PlayerList() {
 
     fetchPlayers();
   }, [search, inClubFilter, sort]);
+
+
+  // Fetch player counts on mount and when scraping finishes
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const counts = await getPlayerCounts();
+        setPlayerCounts(counts);
+      } catch (error) {
+        console.error('Failed to fetch player counts:', error);
+      }
+    };
+    
+    fetchCounts();
+  }, [scraping]); // Refetch when scraping finishes
+
 
   // Poll scrape status when scraping
   useEffect(() => {
@@ -103,7 +120,12 @@ function PlayerList() {
             alt="FC Barcelona" 
             className="w-10 h-10"
           />
-          <h1 className="text-3xl font-bold text-gray-900">FC Barcelona - Past & Present Collection</h1>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">FC Barcelona - Past & Present Collection</h1>
+            <p className="text-lg text-gray-500 mt-1">
+              {playerCounts.in_club} / {playerCounts.total} players in club
+            </p>
+          </div>
         </div>
         <button
           onClick={handleScrape}

@@ -141,3 +141,28 @@ def get_player_by_slug(db: Session, slug: str) -> PlayerDetail | None:
         total_cards=total_cards,
         cards=[Card.model_validate(card) for card in cards],
     )
+
+def get_player_counts(db: Session) -> dict[str, int]:
+    """
+    Get total count of players and count of players with any_in_club=True.
+    
+    Parameters
+    ----------
+    db
+        Database session
+    
+    Returns
+    -------
+    dict with keys:
+        - total: Total number of players
+        - in_club: Number of players with any_in_club=True
+    """
+    total = db.scalar(select(func.count(Player.id)))
+    in_club = db.scalar(
+        select(func.count(Player.id)).where(Player.any_in_club == True)
+    )
+    
+    return {
+        "total": total or 0,
+        "in_club": in_club or 0,
+    }

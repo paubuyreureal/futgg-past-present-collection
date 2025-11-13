@@ -10,7 +10,7 @@ from fastapi import APIRouter, Query
 
 from app.dependencies import DbSession
 from app.schemas.player import PlayerListItem
-from app.services.player_service import get_players_list
+from app.services.player_service import get_players_list, get_player_counts
 
 router = APIRouter(prefix="/players", tags=["players"])
 
@@ -38,3 +38,14 @@ def list_players(
         in_club_filter=in_club_filter,
         sort_by_rating=sort,
     )
+
+@router.get("/counts")
+def get_player_counts_endpoint(db: DbSession) -> dict[str, int]:
+    """
+    Get total player count and count of players with any_in_club=True.
+    
+    Returns:
+    - total: Total number of players
+    - in_club: Number of players with any_in_club=True
+    """
+    return get_player_counts(db)

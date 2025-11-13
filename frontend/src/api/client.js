@@ -119,5 +119,10 @@ export const getScrapeStatus = async () => {
   return response.data;
 };
 
+export const getPlayerCounts = async () => {
+  const response = await apiClient.get('/players/counts');
+  return response.data;
+};
+
 // Export the axios instance in case it's needed directly
 export default apiClient;
